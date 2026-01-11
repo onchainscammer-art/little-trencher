@@ -2,6 +2,133 @@ import React, { useState } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { Copy, Check, ExternalLink } from 'lucide-react';
 
+// Vintage Hero Title Component - 1930s Golden Book Style
+const VintageHeroTitle = () => (
+  <svg
+    viewBox="0 0 1200 600"
+    className="w-full max-w-6xl mx-auto"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <defs>
+      {/* Curved path for "THE LITTLE TRENCHER" - wider arc */}
+      <path
+        id="arcTop"
+        d="M 50 450 Q 600 150 1150 450"
+        fill="transparent"
+      />
+
+      {/* Curved path for "THAT COULDN'T" - lower, flatter arc */}
+      <path
+        id="arcBottom"
+        d="M 200 520 Q 600 380 1000 520"
+        fill="transparent"
+      />
+
+      {/* 3D Shadow Filter - creates the blocky offset shadow */}
+      <filter id="shadow3D" x="-50%" y="-50%" width="200%" height="200%">
+        <feFlood floodColor="#C2410C" result="shadowColor"/>
+        <feComposite in="shadowColor" in2="SourceAlpha" operator="in" result="shadowShape"/>
+        <feOffset dx="6" dy="6" in="shadowShape" result="offsetShadow"/>
+        <feMerge>
+          <feMergeNode in="offsetShadow"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+
+      {/* Chunky 3D extrusion using morphology */}
+      <filter id="chunkyShadow" x="-50%" y="-50%" width="200%" height="200%">
+        {/* Create base shadow */}
+        <feFlood floodColor="#C2410C" result="baseColor"/>
+        <feComposite in="baseColor" in2="SourceAlpha" operator="in" result="coloredAlpha"/>
+
+        {/* Offset for 3D effect - moved down and right */}
+        <feOffset dx="8" dy="8" in="coloredAlpha" result="offset1"/>
+        <feOffset dx="7" dy="7" in="coloredAlpha" result="offset2"/>
+        <feOffset dx="6" dy="6" in="coloredAlpha" result="offset3"/>
+        <feOffset dx="5" dy="5" in="coloredAlpha" result="offset4"/>
+        <feOffset dx="4" dy="4" in="coloredAlpha" result="offset5"/>
+
+        {/* Merge all shadow layers */}
+        <feMerge result="shadowStack">
+          <feMergeNode in="offset1"/>
+          <feMergeNode in="offset2"/>
+          <feMergeNode in="offset3"/>
+          <feMergeNode in="offset4"/>
+          <feMergeNode in="offset5"/>
+        </feMerge>
+
+        {/* Put original on top */}
+        <feMerge>
+          <feMergeNode in="shadowStack"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
+
+    {/* LINE 1: "THE LITTLE TRENCHER" */}
+    <g filter="url(#chunkyShadow)">
+      {/* White stroke outline */}
+      <text fontSize="90" fontWeight="900" letterSpacing="4" fontFamily="'Rye', serif">
+        <textPath
+          href="#arcTop"
+          startOffset="50%"
+          textAnchor="middle"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="12"
+          strokeLinejoin="round"
+          paintOrder="stroke fill"
+        >
+          THE LITTLE TRENCHER
+        </textPath>
+      </text>
+
+      {/* Blue fill */}
+      <text fontSize="90" fontWeight="900" letterSpacing="4" fontFamily="'Rye', serif">
+        <textPath
+          href="#arcTop"
+          startOffset="50%"
+          textAnchor="middle"
+          fill="#3B82F6"
+        >
+          THE LITTLE TRENCHER
+        </textPath>
+      </text>
+    </g>
+
+    {/* LINE 2: "THAT COULDN'T" */}
+    <g filter="url(#chunkyShadow)">
+      {/* White stroke outline */}
+      <text fontSize="70" fontWeight="900" letterSpacing="6" fontFamily="'Rye', serif">
+        <textPath
+          href="#arcBottom"
+          startOffset="50%"
+          textAnchor="middle"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeWidth="10"
+          strokeLinejoin="round"
+          paintOrder="stroke fill"
+        >
+          THAT COULDN'T
+        </textPath>
+      </text>
+
+      {/* Blue fill */}
+      <text fontSize="70" fontWeight="900" letterSpacing="6" fontFamily="'Rye', serif">
+        <textPath
+          href="#arcBottom"
+          startOffset="50%"
+          textAnchor="middle"
+          fill="#3B82F6"
+        >
+          THAT COULDN'T
+        </textPath>
+      </text>
+    </g>
+  </svg>
+);
+
 // SVG Components for each scene
 const TrencherNaive = () => (
   <svg viewBox="0 0 200 150" className="w-full max-w-md mx-auto">
@@ -263,31 +390,37 @@ const Gallery = ({ onBack }) => {
   const memes = [
     {
       id: 1,
+      image: "/gallery/littletrencher1.jpg",
       title: "The Bonding Curve Promise",
       caption: "They said it was mathematically impossible to rug"
     },
     {
       id: 2,
+      image: "/gallery/littletrencher2.jpg",
       title: "Schrödinger's Portfolio",
       caption: "Simultaneously rugged and not rugged until you check Dexscreener"
     },
     {
       id: 3,
+      image: "/gallery/littletrencher3.jpg",
       title: "Fair Launch Starter Pack",
       caption: "40 wallets, all named 'definitely not the dev'"
     },
     {
       id: 4,
+      image: "/gallery/littletrencher4.jpg",
       title: "The PolitiFi Peak",
       caption: "November 2024: 'We're all gonna make it' - Narrator: They didn't"
     },
     {
       id: 5,
+      image: "/gallery/littletrencher5.jpg",
       title: "Liquidity Locked Forever",
       caption: "Lock expires: Heat death of universe. Price expires: Tomorrow"
     },
     {
       id: 6,
+      image: "/gallery/littletrencher6.jpg",
       title: "Soft Abandonment",
       caption: "Not a rug. Just performance art. Very avant-garde."
     }
@@ -336,12 +469,13 @@ const Gallery = ({ onBack }) => {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="bg-white/80 rounded-lg shadow-xl border-4 border-amber-900 overflow-hidden hover:scale-105 transition-transform"
               >
-                {/* Meme Placeholder */}
-                <div className="aspect-square bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center p-8">
-                  <div className="text-center">
-                    <div className="text-6xl mb-4">🚂</div>
-                    <p className="font-handwriting text-xl text-amber-950">{meme.title}</p>
-                  </div>
+                {/* Meme Image */}
+                <div className="aspect-square bg-gradient-to-br from-amber-100 to-amber-200 overflow-hidden">
+                  <img
+                    src={meme.image}
+                    alt={meme.title}
+                    className="w-full h-full object-cover"
+                  />
                 </div>
 
                 {/* Caption */}
@@ -354,22 +488,6 @@ const Gallery = ({ onBack }) => {
             ))}
           </div>
 
-          {/* Call to Action */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className="mt-16 text-center"
-          >
-            <div className="bg-slate-800 p-8 rounded-xl border-2 border-green-500 inline-block">
-              <p className="text-green-400 font-mono text-lg mb-4">
-                $ echo "Got memes? Submit yours!"
-              </p>
-              <p className="text-slate-400 font-mono text-sm">
-                Tag us on X with #LittleTrencher
-              </p>
-            </div>
-          </motion.div>
         </div>
       </main>
 
@@ -393,7 +511,7 @@ function App() {
     return <Gallery onBack={() => setShowGallery(false)} />;
   }
 
-  const CONTRACT_ADDRESS = "TrENCH3r1234567890ABCDEFGHabcdefgh";
+  const CONTRACT_ADDRESS = "tAjP8NfsUJDp4LcqmAPMRzhhD9BRpesGvuosSXypump";
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(CONTRACT_ADDRESS);
@@ -414,24 +532,19 @@ function App() {
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-[#F5F5DC]/90 backdrop-blur-sm border-b-2 border-amber-900 shadow-lg">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="font-serif text-2xl md:text-3xl text-amber-950 italic">
-            The Little Trencher That Couldn't
-          </h1>
-          <div className="flex gap-3">
-            <a
-              href="#manifest"
-              className="px-4 py-2 bg-amber-900 text-amber-50 rounded-lg hover:bg-amber-800 transition-colors font-serif"
-            >
-              The Manifest
-            </a>
-            <button
-              onClick={() => setShowGallery(true)}
-              className="px-4 py-2 bg-amber-900 text-amber-50 rounded-lg hover:bg-amber-800 transition-colors font-serif"
-            >
-              Gallery
-            </button>
-          </div>
+        <div className="container mx-auto px-4 py-4 flex justify-end items-center gap-3">
+          <a
+            href="#manifest"
+            className="px-4 py-2 bg-amber-900 text-amber-50 rounded-lg hover:bg-amber-800 transition-colors font-serif"
+          >
+            The Manifest
+          </a>
+          <button
+            onClick={() => setShowGallery(true)}
+            className="px-4 py-2 bg-amber-900 text-amber-50 rounded-lg hover:bg-amber-800 transition-colors font-serif"
+          >
+            Gallery
+          </button>
         </div>
       </nav>
 
@@ -443,6 +556,46 @@ function App() {
 
       {/* Main Content */}
       <main className="pt-24 pb-12">
+        {/* Hero Section with Vintage Title */}
+        <motion.section
+          className="min-h-screen flex flex-col justify-center items-center px-4 py-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 1.2, ease: "easeOut" }}
+        >
+          <div className="w-full">
+            <VintageHeroTitle />
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8, duration: 1 }}
+              className="text-center text-xl md:text-2xl text-amber-900 font-handwriting mt-8"
+            >
+              A Chronicle of Bonding Curves, Broken Dreams, and Cope
+            </motion.p>
+
+            {/* Scroll indicator */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 1 }}
+              className="flex justify-center mt-16"
+            >
+              <motion.div
+                animate={{ y: [0, 10, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-amber-900"
+              >
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M12 5v14M19 12l-7 7-7-7"/>
+                </svg>
+              </motion.div>
+            </motion.div>
+          </div>
+        </motion.section>
+
         {/* Page 1: The Enlistment (2024) */}
         <motion.section
           className="min-h-screen flex flex-col justify-center items-center px-4 py-16"
@@ -479,6 +632,21 @@ function App() {
                   For no one bought what he was told.
                 </p>
               </div>
+
+              {/* Story Image 1 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="mt-12"
+              >
+                <img
+                  src="/story/littletrencherstory1.jpg"
+                  alt="The Enlistment Story"
+                  className="w-full rounded-lg shadow-2xl border-4 border-amber-900"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -519,6 +687,21 @@ function App() {
                   They simply sold and ruined his day.
                 </p>
               </div>
+
+              {/* Story Image 2 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="mt-12"
+              >
+                <img
+                  src="/story/littletrencherstory2.jpg"
+                  alt="The Euphoric Summit Story"
+                  className="w-full rounded-lg shadow-2xl border-4 border-yellow-600"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -559,6 +742,21 @@ function App() {
                   While paying the market's Darwin price.
                 </p>
               </div>
+
+              {/* Story Image 3 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="mt-12"
+              >
+                <img
+                  src="/story/littletrencherstory3.jpg"
+                  alt="The Meat Grinder Story"
+                  className="w-full rounded-lg shadow-2xl border-4 border-slate-600"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -599,6 +797,21 @@ function App() {
                   It's the Little Trencher's funeral chant.
                 </p>
               </div>
+
+              {/* Story Image 4 */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
+                viewport={{ once: true }}
+                className="mt-12"
+              >
+                <img
+                  src="/story/littletrencherstory4.jpg"
+                  alt="The Cosmic Joke Story"
+                  className="w-full rounded-lg shadow-2xl border-4 border-slate-800"
+                />
+              </motion.div>
             </motion.div>
           </div>
         </motion.section>
@@ -656,7 +869,7 @@ function App() {
               {/* Social Links */}
               <div className="grid md:grid-cols-2 gap-6">
                 <motion.a
-                  href="https://x.com/littletrencher"
+                  href="https://x.com/engineonsol"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-black hover:bg-slate-950 text-white p-6 rounded-xl border-2 border-blue-400 flex items-center justify-center gap-3 transition-all"
@@ -671,14 +884,14 @@ function App() {
                 </motion.a>
 
                 <motion.a
-                  href="https://dexscreener.com/solana/TrENCH3r"
+                  href="https://pump.fun/coin/tAjP8NfsUJDp4LcqmAPMRzhhD9BRpesGvuosSXypump"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white p-6 rounded-xl border-2 border-purple-400 flex items-center justify-center gap-3 transition-all"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  <span className="font-mono text-lg">View Chart</span>
+                  <span className="font-mono text-lg">View on Pump.fun</span>
                   <ExternalLink size={20} />
                 </motion.a>
               </div>
