@@ -21,14 +21,17 @@ const ObstacleSpawner = () => {
   const tokenCounter = useRef(0);
   const lastGameState = useRef('menu');
   const debugFrameCounter = useRef(0);
+  const gameStartFrame = useRef(0); // Track when game started
 
   // Reset spawn positions when game starts
   useEffect(() => {
     const currentGameState = useGameStore.getState().gameState;
     if (currentGameState === 'playing' && lastGameState.current !== 'playing') {
       const store = useGameStore.getState();
-      lastObstacleZ.current = store.playerZ || 0;
-      lastTokenZ.current = store.playerZ || 0;
+      // Initialize spawn positions ahead of player
+      lastObstacleZ.current = (store.playerZ || 20) + 30; // Start spawning 30 units ahead
+      lastTokenZ.current = (store.playerZ || 20) + 20; // Tokens spawn closer
+      gameStartFrame.current = 0; // Reset frame counter
     }
     lastGameState.current = currentGameState;
   });
@@ -59,8 +62,12 @@ const ObstacleSpawner = () => {
 
     if (currentGameState !== 'playing') return;
 
+    // Wait 10 frames after game start to let everything initialize
+    gameStartFrame.current++;
+    if (gameStartFrame.current < 10) return;
+
     // Defensive: Ensure playerZ is valid
-    const safePlayerZ = typeof playerZ === 'number' && !isNaN(playerZ) ? playerZ : 0;
+    const safePlayerZ = typeof playerZ === 'number' && !isNaN(playerZ) ? playerZ : 20;
     const spawnDistance = 50; // Spawn obstacles this far ahead
 
     // Spawn obstacles

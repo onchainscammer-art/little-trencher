@@ -25,10 +25,18 @@ const GameLoop = () => {
 
   // Throttle cleanup to prevent stuttering from frequent state updates
   const frameCount = useRef(0);
+  const initFrameCount = useRef(0);
 
   useFrame((state, delta) => {
     // Only run game loop when playing
-    if (gameState !== 'playing') return;
+    if (gameState !== 'playing') {
+      initFrameCount.current = 0; // Reset on state change
+      return;
+    }
+
+    // Wait 5 frames after start to let everything initialize
+    initFrameCount.current++;
+    if (initFrameCount.current < 5) return;
 
     // Get current store state WITHOUT subscribing (no re-renders)
     const store = useGameStore.getState();
