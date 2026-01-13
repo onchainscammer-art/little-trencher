@@ -9,26 +9,27 @@ import { LANE_POSITIONS } from '../../../stores/gameStore';
  *
  * OPTIMIZATIONS:
  * - Uses InstancedMesh for ties (1 draw call instead of 500)
- * - Reduced tie count to 500 (was 1000)
+ * - Track teleports ahead when player approaches end (infinite effect)
  * - No shadows on ties (performance killer)
  * - Minimal shadows on rails
- * - Track follows player for infinite effect
  */
 
 const TRACK_LENGTH = 2000;
-const TIE_SPACING = 4; // Increased from 2 (fewer ties)
-const NUM_TIES = Math.floor(TRACK_LENGTH / TIE_SPACING); // 500 ties instead of 1000
+const TIE_SPACING = 4;
+const NUM_TIES = Math.floor(TRACK_LENGTH / TIE_SPACING);
+const TELEPORT_THRESHOLD = 1200; // Teleport when player is halfway through track for seamless transition
 
 const TrackFloor = () => {
   const tiesRef = useRef();
   const groupRef = useRef();
+  const trackOffsetRef = useRef(0); // How many times we've teleported
 
-  // Set up instanced mesh positions ONCE on mount
+  // Set up instanced mesh positions ONCE on mount (centered around 0)
   useEffect(() => {
     if (tiesRef.current) {
       const matrix = new THREE.Matrix4();
       for (let i = 0; i < NUM_TIES; i++) {
-        const z = -TRACK_LENGTH / 2 + i * TIE_SPACING;
+        const z = -TRACK_LENGTH / 2 + i * TIE_SPACING; // Centered
         matrix.setPosition(0, -1.35, z);
         tiesRef.current.setMatrixAt(i, matrix);
       }
@@ -36,15 +37,14 @@ const TrackFloor = () => {
     }
   }, []);
 
-  // Make track follow player for infinite effect
+  // Keep track centered on player for infinite effect
   useFrame(() => {
     if (!groupRef.current) return;
 
-    // Get player position without subscribing
     const playerZ = useGameStore.getState().playerZ;
 
-    // Keep track centered around player (rounded to avoid jitter)
-    groupRef.current.position.z = Math.floor(playerZ / TRACK_LENGTH) * TRACK_LENGTH;
+    // Directly match player position - camera moves with player so this looks smooth
+    groupRef.current.position.z = playerZ;
   });
 
   return (
