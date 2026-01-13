@@ -1,35 +1,31 @@
-import React, { useRef, useMemo, useEffect } from 'react';
-import { useFrame } from '@react-three/fiber';
+import React, { useRef, useEffect } from 'react';
 import * as THREE from 'three';
-import useGameStore from '../../../stores/gameStore';
 import { LANE_POSITIONS } from '../../../stores/gameStore';
 
 /**
- * TrackFloor - PERFORMANCE OPTIMIZED with InstancedMesh
+ * TrackFloor - SIMPLE STATIONARY INFINITE TRACK
  *
- * OPTIMIZATIONS:
- * - Uses InstancedMesh for ties (1 draw call instead of 500)
- * - Track teleports ahead when player approaches end (infinite effect)
- * - No shadows on ties (performance killer)
- * - Minimal shadows on rails
+ * APPROACH:
+ * - ONE long track (10km) positioned starting at z=0
+ * - Track never moves - player moves through it
+ * - Camera follows player so track appears to scroll
+ * - Long enough for any reasonable game session
+ * - NO React state updates = smooth 60fps
  */
 
-const TRACK_LENGTH = 2000;
+const TRACK_LENGTH = 10000; // 10km track
 const TIE_SPACING = 4;
 const NUM_TIES = Math.floor(TRACK_LENGTH / TIE_SPACING);
-const TELEPORT_THRESHOLD = 1200; // Teleport when player is halfway through track for seamless transition
 
 const TrackFloor = () => {
   const tiesRef = useRef();
-  const groupRef = useRef();
-  const lastUpdateZ = useRef(0);
 
-  // Set up instanced mesh positions ONCE on mount (centered around 0)
+  // Set up instanced mesh positions ONCE on mount
   useEffect(() => {
     if (tiesRef.current) {
       const matrix = new THREE.Matrix4();
       for (let i = 0; i < NUM_TIES; i++) {
-        const z = -TRACK_LENGTH / 2 + i * TIE_SPACING; // Centered
+        const z = i * TIE_SPACING; // 0 to 10000
         matrix.setPosition(0, -1.35, z);
         tiesRef.current.setMatrixAt(i, matrix);
       }
@@ -37,24 +33,10 @@ const TrackFloor = () => {
     }
   }, []);
 
-  // Keep track centered on player for infinite effect
-  useFrame(() => {
-    if (!groupRef.current) return;
-
-    const playerZ = useGameStore.getState().playerZ || 0;
-
-    // Only update if player moved significantly (reduces glitching from micro-updates)
-    const deltaZ = Math.abs(playerZ - lastUpdateZ.current);
-    if (deltaZ > 0.1) {
-      groupRef.current.position.z = playerZ;
-      lastUpdateZ.current = playerZ;
-    }
-  });
-
   return (
-    <group ref={groupRef} position={[0, 0, 0]}>
-      {/* Ground plane - textured dark ground */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
+    <group position={[0, 0, 0]}>
+      {/* Ground plane - positioned from 0 to TRACK_LENGTH */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, TRACK_LENGTH / 2]} receiveShadow>
         <planeGeometry args={[30, TRACK_LENGTH]} />
         <meshStandardMaterial
           color="#1a2332"
@@ -63,11 +45,11 @@ const TrackFloor = () => {
         />
       </mesh>
 
-      {/* Rails - 2 per lane (6 total), no shadows for performance */}
+      {/* Rails - 2 per lane (6 total) */}
       {LANE_POSITIONS.map((laneX, laneIdx) => (
         <group key={`lane-${laneIdx}`}>
           {/* Left rail */}
-          <mesh position={[laneX - 0.8, -1.25, 0]}>
+          <mesh position={[laneX - 0.8, -1.25, TRACK_LENGTH / 2]}>
             <boxGeometry args={[0.25, 0.25, TRACK_LENGTH]} />
             <meshStandardMaterial
               color="#71717A"
@@ -77,7 +59,7 @@ const TrackFloor = () => {
           </mesh>
 
           {/* Right rail */}
-          <mesh position={[laneX + 0.8, -1.25, 0]}>
+          <mesh position={[laneX + 0.8, -1.25, TRACK_LENGTH / 2]}>
             <boxGeometry args={[0.25, 0.25, TRACK_LENGTH]} />
             <meshStandardMaterial
               color="#71717A"
@@ -88,7 +70,7 @@ const TrackFloor = () => {
         </group>
       ))}
 
-      {/* Wooden ties - INSTANCED (1 draw call for all 500 ties) */}
+      {/* Wooden ties - INSTANCED (1 draw call for all ties) */}
       <instancedMesh ref={tiesRef} args={[null, null, NUM_TIES]} frustumCulled={false}>
         <boxGeometry args={[12, 0.15, 0.4]} />
         <meshStandardMaterial
@@ -98,8 +80,8 @@ const TrackFloor = () => {
         />
       </instancedMesh>
 
-      {/* Side barriers - dark walls with subtle reflection */}
-      <mesh position={[-12, 2, 0]} receiveShadow>
+      {/* Side barriers */}
+      <mesh position={[-12, 2, TRACK_LENGTH / 2]} receiveShadow>
         <boxGeometry args={[1, 6, TRACK_LENGTH]} />
         <meshStandardMaterial
           color="#0F172A"
@@ -107,7 +89,7 @@ const TrackFloor = () => {
           metalness={0.1}
         />
       </mesh>
-      <mesh position={[12, 2, 0]} receiveShadow>
+      <mesh position={[12, 2, TRACK_LENGTH / 2]} receiveShadow>
         <boxGeometry args={[1, 6, TRACK_LENGTH]} />
         <meshStandardMaterial
           color="#0F172A"

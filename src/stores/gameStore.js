@@ -56,7 +56,7 @@ const useGameStore = create((set, get) => ({
       bag: 0.0,
       lane: 1,
       speed: INITIAL_SPEED,
-      playerZ: 0,
+      playerZ: 20, // Start ahead so camera (at playerZ-8) is within track bounds
       distance: 0,
       activeObstacles: [],
       activeTokens: [],

@@ -47,7 +47,6 @@ const WorldRenderer = () => {
 const Trencher = ({ lane }) => {
   const groupRef = useRef();
   const smokeTime = useRef(0);
-  // DO NOT subscribe to playerZ - it changes 60 times/sec and causes re-renders
 
   useFrame((state, delta) => {
     if (!groupRef.current) return;
@@ -55,19 +54,24 @@ const Trencher = ({ lane }) => {
     // Get playerZ directly without subscription
     const playerZ = useGameStore.getState().playerZ;
 
-    // Smooth lane transition using lerp
+    // Smooth lane transition - FRAME INDEPENDENT
     const targetX = LANE_POSITIONS[lane];
     const currentX = groupRef.current.position.x;
-    const newX = THREE.MathUtils.lerp(currentX, targetX, Math.min(delta * 10, 1));
 
-    groupRef.current.position.x = newX;
-    groupRef.current.position.z = playerZ; // Train moves with player!
+    // Frame-independent lerp speed (15 units/sec)
+    const lerpSpeed = 15;
+    const lerpFactor = Math.min(1, lerpSpeed * delta);
+    const newX = THREE.MathUtils.lerp(currentX, targetX, lerpFactor);
+
+    // Round to prevent floating point micro-jitter
+    groupRef.current.position.x = Math.round(newX * 100) / 100;
+    groupRef.current.position.z = Math.round(playerZ * 100) / 100;
 
     smokeTime.current += delta;
   });
 
   return (
-    <group ref={groupRef} position={[0, 0.5, 0]}>
+    <group ref={groupRef} position={[LANE_POSITIONS[lane], 0.5, 20]}>
       {/* Main train body - larger and more detailed */}
       <mesh position={[0, 0, 0]} castShadow>
         <boxGeometry args={[2, 1.2, 2.5]} />
@@ -231,23 +235,23 @@ const Trencher = ({ lane }) => {
 };
 
 const CameraController = () => {
-  // DO NOT subscribe to playerZ or lane - access directly to avoid re-renders
+  const lookAtTarget = useRef(new THREE.Vector3());
 
   useFrame(({ camera }) => {
     // Get state directly without subscription
     const { playerZ, lane } = useGameStore.getState();
 
-    // Camera follows the train's lane position
-    const targetX = LANE_POSITIONS[lane]; // Follow train horizontally
-    const targetY = 4; // Above the train
+    const targetX = LANE_POSITIONS[lane];
 
-    // Smooth follow for X and Y, locked Z
-    camera.position.x = THREE.MathUtils.lerp(camera.position.x, targetX, 0.15);
-    camera.position.y = THREE.MathUtils.lerp(camera.position.y, targetY, 0.1);
-    camera.position.z = playerZ - 8; // LOCKED to player (no lerp = no rubber-banding)
+    // LOCKED camera position - no lerping, instant follow
+    // Round to prevent floating point micro-jitter
+    camera.position.x = Math.round(targetX * 100) / 100;
+    camera.position.y = 4;
+    camera.position.z = Math.round((playerZ - 8) * 100) / 100;
 
-    // Look at point ahead of the train in the same lane
-    camera.lookAt(targetX, 0, playerZ + 5);
+    // Update lookAt target efficiently (reuse Vector3)
+    lookAtTarget.current.set(targetX, 0, Math.round((playerZ + 5) * 100) / 100);
+    camera.lookAt(lookAtTarget.current);
   });
 
   return null;
