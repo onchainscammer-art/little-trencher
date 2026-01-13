@@ -22,7 +22,7 @@ const TELEPORT_THRESHOLD = 1200; // Teleport when player is halfway through trac
 const TrackFloor = () => {
   const tiesRef = useRef();
   const groupRef = useRef();
-  const trackOffsetRef = useRef(0); // How many times we've teleported
+  const lastUpdateZ = useRef(0);
 
   // Set up instanced mesh positions ONCE on mount (centered around 0)
   useEffect(() => {
@@ -41,10 +41,14 @@ const TrackFloor = () => {
   useFrame(() => {
     if (!groupRef.current) return;
 
-    const playerZ = useGameStore.getState().playerZ;
+    const playerZ = useGameStore.getState().playerZ || 0;
 
-    // Directly match player position - camera moves with player so this looks smooth
-    groupRef.current.position.z = playerZ;
+    // Only update if player moved significantly (reduces glitching from micro-updates)
+    const deltaZ = Math.abs(playerZ - lastUpdateZ.current);
+    if (deltaZ > 0.1) {
+      groupRef.current.position.z = playerZ;
+      lastUpdateZ.current = playerZ;
+    }
   });
 
   return (
