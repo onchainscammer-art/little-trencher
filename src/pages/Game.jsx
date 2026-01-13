@@ -19,18 +19,18 @@ const WorldRenderer = () => {
       {/* Ambient light */}
       <ambientLight intensity={0.6} />
 
-      {/* Main directional light - reduced shadow quality for performance */}
+      {/* Main directional light - simplified shadows */}
       <directionalLight
         position={[10, 20, 10]}
         intensity={1.5}
-       
+        castShadow
         shadow-mapSize-width={512}
         shadow-mapSize-height={512}
         shadow-camera-far={50}
       />
 
-      {/* Fill light */}
-      <directionalLight position={[-10, 10, -10]} intensity={0.4} color="#60A5FA" />
+      {/* Fill light - single light instead of two */}
+      <directionalLight position={[-10, 10, -10]} intensity={0.5} color="#60A5FA" />
 
       {/* Infinite Track Floor with Rails, Ties & Barriers */}
       <TrackFloor />
@@ -69,42 +69,65 @@ const Trencher = ({ lane }) => {
   return (
     <group ref={groupRef} position={[0, 0.5, 0]}>
       {/* Main train body - larger and more detailed */}
-      <mesh position={[0, 0, 0]}>
+      <mesh position={[0, 0, 0]} castShadow>
         <boxGeometry args={[2, 1.2, 2.5]} />
-        <meshBasicMaterial color="#3B82F6" />
+        <meshStandardMaterial
+          color="#3B82F6"
+          metalness={0.4}
+          roughness={0.6}
+        />
       </mesh>
 
       {/* Front nose/cowcatcher */}
-      <mesh position={[0, -0.3, 1.5]}>
+      <mesh position={[0, -0.3, 1.5]} castShadow>
         <boxGeometry args={[1.8, 0.3, 0.5]} />
-        <meshBasicMaterial color="#1E40AF" />
+        <meshStandardMaterial
+          color="#1E40AF"
+          metalness={0.6}
+          roughness={0.5}
+        />
       </mesh>
 
       {/* Cabin top */}
-      <mesh position={[0, 0.8, -0.3]}>
+      <mesh position={[0, 0.8, -0.3]} castShadow>
         <boxGeometry args={[1.6, 0.8, 1.5]} />
-        <meshBasicMaterial color="#60A5FA" />
+        <meshStandardMaterial
+          color="#60A5FA"
+          metalness={0.3}
+          roughness={0.7}
+        />
       </mesh>
 
       {/* Smokestack - taller and more prominent */}
-      <mesh position={[0, 1.8, 0.3]}>
+      <mesh position={[0, 1.8, 0.3]} castShadow>
         <cylinderGeometry args={[0.25, 0.3, 1, 12]} />
-        <meshBasicMaterial color="#1E40AF" />
+        <meshStandardMaterial
+          color="#1E40AF"
+          metalness={0.7}
+          roughness={0.3}
+        />
       </mesh>
 
       {/* Smokestack top rim */}
-      <mesh position={[0, 2.35, 0.3]}>
+      <mesh position={[0, 2.35, 0.3]} castShadow>
         <cylinderGeometry args={[0.32, 0.25, 0.1, 12]} />
-        <meshBasicMaterial color="#1E293B" />
+        <meshStandardMaterial
+          color="#1E293B"
+          metalness={0.9}
+          roughness={0.2}
+        />
       </mesh>
 
       {/* Smoke puffs */}
       <mesh position={[0, 2.8, 0.3]}>
         <sphereGeometry args={[0.3, 8, 8]} />
-        <meshBasicMaterial
+        <meshStandardMaterial
           color="#E2E8F0"
           transparent
-          opacity={0.6}
+          opacity={0.7}
+          emissive="#94A3B8"
+          emissiveIntensity={0.3}
+          roughness={1.0}
         />
       </mesh>
 
@@ -142,25 +165,41 @@ const Trencher = ({ lane }) => {
       {[-0.7, 0.7].map((x, i) => (
         <group key={`wheel-${i}`}>
           {/* Front wheel */}
-          <mesh position={[x, -0.8, 0.8]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh position={[x, -0.8, 0.8]} rotation={[0, 0, Math.PI / 2]} castShadow>
             <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
-            <meshBasicMaterial color="#1F2937" />
+            <meshStandardMaterial
+              color="#1F2937"
+              metalness={0.8}
+              roughness={0.2}
+            />
           </mesh>
           {/* Front wheel inner detail */}
           <mesh position={[x, -0.8, 0.8]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.2, 0.2, 0.32, 16]} />
-            <meshBasicMaterial color="#374151" />
+            <meshStandardMaterial
+              color="#374151"
+              metalness={0.5}
+              roughness={0.4}
+            />
           </mesh>
 
           {/* Back wheel */}
-          <mesh position={[x, -0.8, -0.8]} rotation={[0, 0, Math.PI / 2]}>
+          <mesh position={[x, -0.8, -0.8]} rotation={[0, 0, Math.PI / 2]} castShadow>
             <cylinderGeometry args={[0.4, 0.4, 0.3, 16]} />
-            <meshBasicMaterial color="#1F2937" />
+            <meshStandardMaterial
+              color="#1F2937"
+              metalness={0.8}
+              roughness={0.2}
+            />
           </mesh>
           {/* Back wheel inner detail */}
           <mesh position={[x, -0.8, -0.8]} rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.2, 0.2, 0.32, 16]} />
-            <meshBasicMaterial color="#374151" />
+            <meshStandardMaterial
+              color="#374151"
+              metalness={0.5}
+              roughness={0.4}
+            />
           </mesh>
         </group>
       ))}
@@ -168,7 +207,13 @@ const Trencher = ({ lane }) => {
       {/* Headlight */}
       <mesh position={[0, 0.2, 1.6]}>
         <cylinderGeometry args={[0.15, 0.2, 0.2, 12]} rotation={[Math.PI / 2, 0, 0]} />
-        <meshBasicMaterial color="#FCD34D" />
+        <meshStandardMaterial
+          color="#FCD34D"
+          emissive="#FCD34D"
+          emissiveIntensity={1.0}
+          metalness={0.1}
+          roughness={0.2}
+        />
       </mesh>
 
       {/* Headlight beam */}
@@ -517,7 +562,8 @@ const Game = () => {
           performance={{ min: 0.5 }}
           gl={{
             antialias: false,
-            powerPreference: 'high-performance'
+            powerPreference: 'high-performance',
+            alpha: false
           }}
           style={{ width: '100%', height: '100%', touchAction: 'none' }}
         >

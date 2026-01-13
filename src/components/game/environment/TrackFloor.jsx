@@ -35,25 +35,37 @@ const TrackFloor = () => {
 
   return (
     <group position={[0, 0, 0]}>
-      {/* Ground plane - STATIC */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]}>
+      {/* Ground plane - textured dark ground */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
         <planeGeometry args={[30, TRACK_LENGTH]} />
-        <meshBasicMaterial color="#1E293B" />
+        <meshStandardMaterial
+          color="#1a2332"
+          roughness={0.95}
+          metalness={0.05}
+        />
       </mesh>
 
-      {/* Rails - 2 per lane (6 total), minimal shadows */}
+      {/* Rails - 2 per lane (6 total), no shadows for performance */}
       {LANE_POSITIONS.map((laneX, laneIdx) => (
         <group key={`lane-${laneIdx}`}>
           {/* Left rail */}
           <mesh position={[laneX - 0.8, -1.25, 0]}>
             <boxGeometry args={[0.25, 0.25, TRACK_LENGTH]} />
-            <meshBasicMaterial color="#71717A" />
+            <meshStandardMaterial
+              color="#71717A"
+              metalness={0.6}
+              roughness={0.4}
+            />
           </mesh>
 
           {/* Right rail */}
           <mesh position={[laneX + 0.8, -1.25, 0]}>
             <boxGeometry args={[0.25, 0.25, TRACK_LENGTH]} />
-            <meshBasicMaterial color="#71717A" />
+            <meshStandardMaterial
+              color="#71717A"
+              metalness={0.6}
+              roughness={0.4}
+            />
           </mesh>
         </group>
       ))}
@@ -61,17 +73,29 @@ const TrackFloor = () => {
       {/* Wooden ties - INSTANCED (1 draw call for all 500 ties) */}
       <instancedMesh ref={tiesRef} args={[null, null, NUM_TIES]} frustumCulled={false}>
         <boxGeometry args={[12, 0.15, 0.4]} />
-        <meshBasicMaterial color="#92400E" />
+        <meshStandardMaterial
+          color="#78350f"
+          roughness={0.9}
+          metalness={0.0}
+        />
       </instancedMesh>
 
-      {/* Side barriers - STATIC walls */}
-      <mesh position={[-12, 2, 0]}>
+      {/* Side barriers - dark walls with subtle reflection */}
+      <mesh position={[-12, 2, 0]} receiveShadow>
         <boxGeometry args={[1, 6, TRACK_LENGTH]} />
-        <meshBasicMaterial color="#0F172A" />
+        <meshStandardMaterial
+          color="#0F172A"
+          roughness={0.8}
+          metalness={0.1}
+        />
       </mesh>
-      <mesh position={[12, 2, 0]}>
+      <mesh position={[12, 2, 0]} receiveShadow>
         <boxGeometry args={[1, 6, TRACK_LENGTH]} />
-        <meshBasicMaterial color="#0F172A" />
+        <meshStandardMaterial
+          color="#0F172A"
+          roughness={0.8}
+          metalness={0.1}
+        />
       </mesh>
     </group>
   );

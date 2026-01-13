@@ -7,7 +7,7 @@ export const COLLISION_DISTANCE = 2;
 
 // Game constants
 export const INITIAL_SPEED = 0.2;
-export const MAX_SPEED = 0.4; // Capped at 0.4 for stable performance
+export const MAX_SPEED = 0.35; // Capped at 0.35 for stable performance
 export const SPEED_INCREMENT = 0.0005; // Gradual speed increase (slower than before)
 export const TOKEN_VALUE = 0.1; // SOL per token
 

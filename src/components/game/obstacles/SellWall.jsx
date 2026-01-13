@@ -40,24 +40,43 @@ const SellWall = ({ lane, zPosition }) => {
 
   return (
     <group position={[xPosition, 0, zPosition]}>
-      {/* All bricks as ONE InstancedMesh - massive performance boost */}
-      <instancedMesh ref={bricksRef} args={[null, null, 24]}>
+      {/* All bricks as ONE InstancedMesh - with proper materials */}
+      <instancedMesh ref={bricksRef} args={[null, null, 24]} castShadow>
         <boxGeometry args={[1.0, 0.8, 0.5]} />
-        <meshBasicMaterial color="#6B7280" />
+        <meshStandardMaterial
+          color="#6B7280"
+          roughness={0.8}
+          metalness={0.2}
+        />
       </instancedMesh>
 
-      {/* "SELL" text plane */}
+      {/* "SELL" text plane with glow */}
       <mesh position={[0, 2.5, 0.3]}>
         <planeGeometry args={[2.5, 1.2]} />
-        <meshBasicMaterial color="#EF4444" />
+        <meshStandardMaterial
+          color="#EF4444"
+          emissive="#DC2626"
+          emissiveIntensity={0.8}
+        />
       </mesh>
 
-      {/* Warning light on top */}
+      {/* Warning light on top - glowing sphere */}
       <mesh position={[0, 4.5, 0]}>
-        <sphereGeometry args={[0.3, 8, 8]} />
-        <meshBasicMaterial color="#EF4444" />
+        <sphereGeometry args={[0.3, 16, 16]} />
+        <meshStandardMaterial
+          color="#EF4444"
+          emissive="#EF4444"
+          emissiveIntensity={1.5}
+        />
       </mesh>
-      <pointLight position={[0, 4.5, 0]} color="#EF4444" intensity={1.5} distance={6} />
+
+      {/* Point light from warning beacon */}
+      <pointLight
+        position={[0, 4.5, 0]}
+        color="#EF4444"
+        intensity={1.5}
+        distance={6}
+      />
     </group>
   );
 };

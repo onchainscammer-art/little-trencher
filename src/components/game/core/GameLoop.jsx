@@ -61,7 +61,7 @@ const GameLoop = () => {
       updatePlayerZ(moveAmount);
     }
 
-    // Gradually increase speed (capped at 0.4 for performance)
+    // Gradually increase speed (capped at 0.35 for performance)
     increaseSpeed();
 
     // Check collisions with obstacles

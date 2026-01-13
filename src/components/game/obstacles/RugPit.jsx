@@ -26,20 +26,22 @@ const RugPit = ({ lane, zPosition }) => {
         <meshStandardMaterial
           color="#FF4500"
           emissive="#FF4500"
-          emissiveIntensity={1.5}
+          emissiveIntensity={2.0}
           roughness={0.1}
+          metalness={0.3}
         />
       </mesh>
 
       {/* TALL RED WARNING BEAM - 10 units high, semi-transparent */}
-      <mesh position={[0, 5, 0]}>
+      <mesh position={[0, 5, 0]} castShadow>
         <cylinderGeometry args={[0.5, 0.5, 10, 16]} />
         <meshStandardMaterial
           color="#DC2626"
           emissive="#DC2626"
-          emissiveIntensity={1.0}
+          emissiveIntensity={1.2}
           transparent
-          opacity={0.6}
+          opacity={0.7}
+          roughness={0.3}
         />
       </mesh>
 
@@ -51,18 +53,23 @@ const RugPit = ({ lane, zPosition }) => {
         return (
           <group key={`sign-${i}`} position={[signX, 0, signZ]} rotation={[0, -angle, 0]}>
             {/* Sign post */}
-            <mesh position={[0, 0.5, 0]}>
-              <cylinderGeometry args={[0.05, 0.05, 1, 6]} />
-              <meshStandardMaterial color="#57534E" />
+            <mesh position={[0, 0.5, 0]} castShadow>
+              <cylinderGeometry args={[0.05, 0.05, 1, 8]} />
+              <meshStandardMaterial
+                color="#57534E"
+                metalness={0.6}
+                roughness={0.4}
+              />
             </mesh>
 
             {/* Sign board */}
-            <mesh position={[0, 1, 0]}>
+            <mesh position={[0, 1, 0]} castShadow>
               <boxGeometry args={[0.5, 0.4, 0.05]} />
               <meshStandardMaterial
                 color="#FCD34D"
                 emissive="#FCD34D"
-                emissiveIntensity={0.2}
+                emissiveIntensity={0.6}
+                roughness={0.5}
               />
             </mesh>
           </group>
@@ -72,7 +79,7 @@ const RugPit = ({ lane, zPosition }) => {
       {/* Red warning light at center */}
       <pointLight
         position={[0, 0.5, 0]}
-        intensity={0.8}
+        intensity={1.0}
         distance={4}
         color="#DC2626"
       />
