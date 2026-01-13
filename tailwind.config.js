@@ -10,6 +10,7 @@ export default {
         serif: ['Playfair Display', 'serif'],
         mono: ['Courier Prime', 'Courier New', 'monospace'],
         handwriting: ['Caveat', 'cursive'],
+        vintage: ['Rye', 'serif'],
       },
       colors: {
         parchment: '#F5F5DC',
