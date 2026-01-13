@@ -1,5 +1,7 @@
 import React, { useRef, useMemo, useEffect } from 'react';
+import { useFrame } from '@react-three/fiber';
 import * as THREE from 'three';
+import useGameStore from '../../../stores/gameStore';
 import { LANE_POSITIONS } from '../../../stores/gameStore';
 
 /**
@@ -10,7 +12,7 @@ import { LANE_POSITIONS } from '../../../stores/gameStore';
  * - Reduced tie count to 500 (was 1000)
  * - No shadows on ties (performance killer)
  * - Minimal shadows on rails
- * - Static geometry (set up ONCE, never updated)
+ * - Track follows player for infinite effect
  */
 
 const TRACK_LENGTH = 2000;
@@ -19,6 +21,7 @@ const NUM_TIES = Math.floor(TRACK_LENGTH / TIE_SPACING); // 500 ties instead of 
 
 const TrackFloor = () => {
   const tiesRef = useRef();
+  const groupRef = useRef();
 
   // Set up instanced mesh positions ONCE on mount
   useEffect(() => {
@@ -33,8 +36,19 @@ const TrackFloor = () => {
     }
   }, []);
 
+  // Make track follow player for infinite effect
+  useFrame(() => {
+    if (!groupRef.current) return;
+
+    // Get player position without subscribing
+    const playerZ = useGameStore.getState().playerZ;
+
+    // Keep track centered around player (rounded to avoid jitter)
+    groupRef.current.position.z = Math.floor(playerZ / TRACK_LENGTH) * TRACK_LENGTH;
+  });
+
   return (
-    <group position={[0, 0, 0]}>
+    <group ref={groupRef} position={[0, 0, 0]}>
       {/* Ground plane - textured dark ground */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -1.5, 0]} receiveShadow>
         <planeGeometry args={[30, TRACK_LENGTH]} />
